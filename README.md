@@ -519,3 +519,8 @@ To pass the accountId to the server, in the variables tab of the Apollo studio, 
 ```
 
 UserWithAccess does not look like will become part of the domain model. It is needed for implementing access level. All other concepts in the schema seems like will end up in the domain model.
+
+## Tasks
+
+- Bank Name is missing
+- Identify the subset of FIBO to import using the current schema
