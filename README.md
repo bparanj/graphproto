@@ -520,7 +520,301 @@ To pass the accountId to the server, in the variables tab of the Apollo studio, 
 
 UserWithAccess does not look like will become part of the domain model. It is needed for implementing access level. All other concepts in the schema seems like will end up in the domain model.
 
+## FIBO Subset
+
+Identify the subset of FIBO to import using the current schema
+
+Looking at these concepts, you would need elements from the FIBO (Financial Industry Business Ontology) Business Entities (BE) and Financial Business and Commerce (FBC) domains to effectively map your domain model.
+
+Here's the appropriate FIBO subset for mapping these concepts:
+
+1. **For User**:
+   - FIBO BE (Business Entities): Person
+   - FIBO BE: Legal Person (if the user can be an organization)
+   - FIBO BE: NaturalPerson (for individual users)
+
+2. **For Account**:
+   - FIBO FBC (Financial Business and Commerce): Account
+   - FIBO FBC: CustomerAccount
+
+3. **For AccountType**:
+   - FIBO FBC: AccountSpecification
+   - FIBO FBC: AccountTypeEnum (for different account classifications)
+
+4. **For AccountSummary**:
+   - FIBO FBC: AccountState
+   - FIBO FBC: AccountStatus
+   - FIBO FBC: Balance (for summarizing financial position)
+
+5. **For Bank**:
+   - FIBO BE: FormalOrganization
+   - FIBO FBC: FinancialServiceProvider
+   - FIBO FBC: FinancialInstitution
+   - FIBO FBC: Bank
+
+Additionally, you would need relationship classes from FIBO to connect these entities:
+- FIBO FBC: CustomerRelationship (connecting User to Bank)
+- FIBO FBC: AccountProvider (connecting Bank to Account)
+- FIBO FBC: AccountIdentifier (for unique account references)
+- FIBO FBC: AccountHolder (connecting User to Account)
+
+This subset provides the foundational elements needed to create an ontologically sound domain model that aligns with financial industry standards.
+
+## Import FIBO Subset
+
+To import the FIBO subset into your Neo4j database, you'll need to follow a few steps. Here's a practical approach:
+
+## Step 1: Download the FIBO Ontology Files
+
+First, obtain the FIBO ontology files. The FIBO ontologies are typically available in RDF/OWL format:
+
+```
+# FIBO is available from the EDM Council's GitHub repository
+git clone https://github.com/edmcouncil/fibo.git
+```
+
+## Step 2: Convert RDF/OWL to Neo4j-Compatible Format
+
+You'll need to convert the ontology from RDF/OWL to a format suitable for Neo4j import. The easiest approach is to use the neosemantics (n10s) plugin for Neo4j.
+
+## Step 3: Selective Import of Only the Needed Subset
+
+For your specific domain model, you can create an import script that only pulls in the relevant classes:
+
+## Step 4: Map Your Domain Model to FIBO
+
+After importing the FIBO subset, you'll need to map your specific domain entities to the FIBO concepts:
+
+
+
+## Step 5: Create a Visual Graph Representation
+
+To visualize your domain model mapped to FIBO:
+
+
+
+## Additional Tips for Working with FIBO in Neo4j
+
+1. **Use namespaces for clarity**: The FIBO ontology has many concepts with similar names across different domains. Preserve the namespaces to avoid confusion.
+
+2. **Consider using APOC procedures**: The APOC library provides powerful tools for working with ontologies in Neo4j.
+
+3. **Create domain-specific views**: After importing the FIBO ontology, create views that make it easier to work with your specific domain model.
+
+4. **Maintain bidirectional mappings**: Ensure you can navigate both from your domain model to FIBO and from FIBO to your domain model.
+
+5. **Document your mappings**: Create a mapping document that explains how each of your domain concepts relates to FIBO concepts.
+
+This approach gives you a precise mapping of your domain model to the relevant FIBO subset, making your database semantically aligned with financial industry standards while keeping it focused on just what you need.
+
+```
+// Step 1: Install neosemantics plugin if not already installed
+// In your Neo4j Desktop, add the plugin to your project or via Neo4j server configuration
+
+// Step 2: Create RDF import constraints
+CREATE CONSTRAINT n10s_unique_uri IF NOT EXISTS FOR (r:Resource) REQUIRE r.uri IS UNIQUE;
+
+// Step 3: Initialize the graph configuration
+CALL n10s.graphconfig.init({
+  handleVocabUris: 'MAP',
+  handleRDFTypes: 'LABELS',
+  keepLangTag: false,
+  applyNeo4jNaming: true
+});
+
+// Step 4: Import specific FIBO modules
+// Business Entities (BE) domain
+CALL n10s.rdf.import.fetch(
+  "file:///path/to/fibo/BE/LegalEntities/LegalPersons.rdf",
+  "RDF/XML"
+);
+
+// Import Person definitions
+CALL n10s.rdf.import.fetch(
+  "file:///path/to/fibo/BE/Persons/Persons.rdf",
+  "RDF/XML"
+);
+
+// Financial Business and Commerce (FBC) modules
+CALL n10s.rdf.import.fetch(
+  "file:///path/to/fibo/FBC/FinancialInstruments/FinancialInstruments.rdf",
+  "RDF/XML"
+);
+
+CALL n10s.rdf.import.fetch(
+  "file:///path/to/fibo/FBC/ProductsAndServices/FinancialProductsAndServices.rdf",
+  "RDF/XML"
+);
+
+// Import the Account-related modules
+CALL n10s.rdf.import.fetch(
+  "file:///path/to/fibo/FBC/ProductsAndServices/ClientsAndAccounts.rdf",
+  "RDF/XML"
+);
+
+// Import Bank-related modules
+CALL n10s.rdf.import.fetch(
+  "file:///path/to/fibo/FBC/FinancialInstitutions/FinancialInstitutions.rdf",
+  "RDF/XML"
+);
+
+// Step 5: Verify import
+MATCH (c:Class) RETURN c.prefLabel, c.uri LIMIT 10;
+
+// Check specifically for your required concepts
+MATCH (c:Class)
+WHERE c.prefLabel IN ['Person', 'Account', 'Bank', 'FinancialInstitution', 'AccountSpecification']
+RETURN c.prefLabel, c.uri;
+```
+
+```
+// Create a custom procedure to import only the needed subset
+// This assumes you've already initialized the graph config as in the previous script
+
+// Define the FIBO classes we need for our domain model
+WITH [
+  // User related
+  'https://spec.edmcouncil.org/fibo/ontology/BE/Persons/Persons/Person',
+  'https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/LegalPersons/LegalPerson',
+  'https://spec.edmcouncil.org/fibo/ontology/BE/Persons/Persons/NaturalPerson',
+  
+  // Account related
+  'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/Account',
+  'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/CustomerAccount',
+  'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/AccountSpecification',
+  'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/AccountTypeEnum',
+  
+  // Account Summary related
+  'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/AccountState',
+  'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/AccountStatus',
+  'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/Balance',
+  
+  // Bank related
+  'https://spec.edmcouncil.org/fibo/ontology/BE/LegalEntities/FormalOrganizations/FormalOrganization',
+  'https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstitutions/FinancialServiceProviders/FinancialServiceProvider',
+  'https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstitutions/FinancialInstitutions/FinancialInstitution',
+  'https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstitutions/FinancialInstitutions/Bank',
+  
+  // Relationships
+  'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/CustomerRelationship',
+  'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/AccountProvider',
+  'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/AccountIdentifier',
+  'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/AccountHolder'
+] AS fiboClasses
+
+// Import the entire FIBO ontology with a filter to extract only our required classes
+CALL n10s.rdf.import.fetch(
+  "file:///path/to/fibo-merged.rdf",
+  "RDF/XML",
+  { 
+    classFilter: fiboClasses,
+    includeInferredTriples: true,
+    fetchRelatedEntities: true
+  }
+);
+
+// Create indexes for better performance
+CREATE INDEX fibo_class_index IF NOT EXISTS FOR (c:Class) ON (c.uri);
+CREATE INDEX fibo_resource_index IF NOT EXISTS FOR (r:Resource) ON (r.uri);
+
+// Map to your domain model with more friendly names
+MATCH (c:Class)
+WHERE c.uri IN fiboClasses
+WITH c, 
+     CASE 
+       WHEN c.uri CONTAINS '/Person' THEN 'User'
+       WHEN c.uri CONTAINS '/Account' AND NOT c.uri CONTAINS '/AccountSpecification' THEN 'Account'
+       WHEN c.uri CONTAINS '/AccountSpecification' THEN 'AccountType'
+       WHEN c.uri CONTAINS '/Bank' THEN 'Bank'
+       WHEN c.uri CONTAINS '/Balance' OR c.uri CONTAINS '/AccountState' THEN 'AccountSummary'
+       ELSE LAST(SPLIT(c.uri, '/'))
+     END AS domainClass
+SET c.domainMapping = domainClass;
+
+// Create views for easier querying of your domain model
+CALL apoc.meta.subGraph({
+  includeLabels: ['Class'],
+  filterRelationshipTypes: ['SUBCLASS_OF', 'DOMAIN', 'RANGE']
+})
+YIELD nodes, relationships
+RETURN nodes, relationships;
+```
+
+```
+// Create your domain model nodes
+CREATE (user:DomainModel:User {name: 'UserClass'})
+CREATE (account:DomainModel:Account {name: 'AccountClass'})
+CREATE (accountType:DomainModel:AccountType {name: 'AccountTypeClass'})
+CREATE (accountSummary:DomainModel:AccountSummary {name: 'AccountSummaryClass'})
+CREATE (bank:DomainModel:Bank {name: 'BankClass'});
+
+// Create the relationships for your domain model
+MATCH (user:User), (account:Account)
+CREATE (user)-[:HAS_ACCOUNT]->(account);
+
+MATCH (account:Account), (accountType:AccountType)
+CREATE (account)-[:HAS_TYPE]->(accountType);
+
+MATCH (account:Account), (accountSummary:AccountSummary)
+CREATE (account)-[:HAS_SUMMARY]->(accountSummary);
+
+MATCH (bank:Bank), (account:Account)
+CREATE (bank)-[:PROVIDES]->(account);
+
+MATCH (user:User), (bank:Bank)
+CREATE (user)-[:CUSTOMER_OF]->(bank);
+
+// Map your domain model to FIBO concepts
+MATCH (user:User), (fiboUser:Class)
+WHERE fiboUser.uri = 'https://spec.edmcouncil.org/fibo/ontology/BE/Persons/Persons/Person'
+CREATE (user)-[:MAPPED_TO_FIBO]->(fiboUser);
+
+MATCH (account:Account), (fiboAccount:Class)
+WHERE fiboAccount.uri = 'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/Account'
+CREATE (account)-[:MAPPED_TO_FIBO]->(fiboAccount);
+
+MATCH (accountType:AccountType), (fiboAccountType:Class)
+WHERE fiboAccountType.uri = 'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/AccountSpecification'
+CREATE (accountType)-[:MAPPED_TO_FIBO]->(fiboAccountType);
+
+MATCH (accountSummary:AccountSummary), (fiboAccountState:Class)
+WHERE fiboAccountState.uri = 'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/AccountState'
+CREATE (accountSummary)-[:MAPPED_TO_FIBO]->(fiboAccountState);
+
+MATCH (bank:Bank), (fiboBank:Class)
+WHERE fiboBank.uri = 'https://spec.edmcouncil.org/fibo/ontology/FBC/FinancialInstitutions/FinancialInstitutions/Bank'
+CREATE (bank)-[:MAPPED_TO_FIBO]->(fiboBank);
+
+// Map your domain relationships to FIBO relationships
+MATCH (user:User)-[r:HAS_ACCOUNT]->(account:Account),
+      (fiboHolder:Class {uri: 'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/AccountHolder'})
+CREATE (r)-[:ALIGNED_WITH]->(fiboHolder);
+
+MATCH (bank:Bank)-[r:PROVIDES]->(account:Account),
+      (fiboProvider:Class {uri: 'https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/AccountProvider'})
+CREATE (r)-[:ALIGNED_WITH]->(fiboProvider);
+
+// Query to verify your mappings
+MATCH (domain:DomainModel)-[m:MAPPED_TO_FIBO]->(fibo:Class)
+RETURN domain.name, fibo.prefLabel, fibo.uri;
+```
+
+```
+// Visualization query for your mapped domain model
+MATCH path = (domain:DomainModel)-[:MAPPED_TO_FIBO]->(fibo:Class)
+WITH path, domain, fibo
+MATCH domainRels = (domain)-[r]->(otherDomain:DomainModel)
+RETURN path, domainRels
+LIMIT 100;
+
+// Alternative visualization focusing on one concept at a time
+// For example, visualizing everything related to Account:
+MATCH (account:Account)
+CALL apoc.path.expand(account, "MAPPED_TO_FIBO|ALIGNED_WITH|HAS_TYPE|HAS_SUMMARY", "", 1, 3)
+YIELD path
+RETURN path;
+```
+
 ## Tasks
 
 - Bank Name is missing
-- Identify the subset of FIBO to import using the current schema
