@@ -1,0 +1,87 @@
+{
+    "users": [
+      {
+        "userId": "user-1",
+        "name": "John Doe",
+        "email": "john@example.com"
+      },
+      {
+        "userId": "user-2",
+        "name": "Jane Smith",
+        "email": "jane@example.com"
+      }
+    ],
+    "accounts": [
+      {
+        "accountId": "acc-1",
+        "balance": 1500.75,
+        "openDate": "2023-01-15T00:00:00.000Z"
+      },
+      {
+        "accountId": "acc-2",
+        "balance": 5250.50,
+        "openDate": "2023-02-20T00:00:00.000Z"
+      },
+      {
+        "accountId": "acc-3",
+        "balance": 10000,
+        "openDate": "2023-03-10T00:00:00.000Z"
+      }
+    ],
+    "accountTypes": [
+      {
+        "typeId": "type-1",
+        "name": "Checking",
+        "description": "Everyday banking account with no interest",
+        "interestRate": 0
+      },
+      {
+        "typeId": "type-2",
+        "name": "Savings",
+        "description": "Interest-bearing account for savings",
+        "interestRate": 0.02
+      },
+      {
+        "typeId": "type-3",
+        "name": "Investment",
+        "description": "High-yield investment account",
+        "interestRate": 0.05
+      }
+    ],
+    "owns": [
+      {
+        "userId": "user-1",
+        "accountId": "acc-1",
+        "accessLevel": "primary"
+      },
+      {
+        "userId": "user-1",
+        "accountId": "acc-2",
+        "accessLevel": "primary"
+      },
+      {
+        "userId": "user-2",
+        "accountId": "acc-3",
+        "accessLevel": "primary"
+      },
+      {
+        "userId": "user-2",
+        "accountId": "acc-1",
+        "accessLevel": "joint"
+      }
+    ],
+    "isType": [
+      {
+        "accountId": "acc-1",
+        "typeId": "type-1"
+      },
+      {
+        "accountId": "acc-2",
+        "typeId": "type-2"
+      },
+      {
+        "accountId": "acc-3",
+        "typeId": "type-3"
+      }
+    ]
+  }
