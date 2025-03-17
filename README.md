@@ -132,7 +132,7 @@ npm install apollo-server graphql
 Create the following file structure:
 
 ```
-banking-graphql-server/
+graphqldemo/
 ├── data/
 │   └── db.json
 ├── src/
@@ -818,3 +818,4 @@ RETURN path;
 ## Tasks
 
 - Bank Name is missing
+- See the paper prototype and revise the mock data with realistic values for attributes
