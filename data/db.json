@@ -1,12 +1,12 @@
 {
-    "users": [
+    "customers": [
       {
-        "userId": "user-1",
+        "customerId": "user-1",
         "name": "John Doe",
         "email": "john@example.com"
       },
       {
-        "userId": "user-2",
+        "customerId": "user-2",
         "name": "Jane Smith",
         "email": "jane@example.com"
       }
@@ -32,42 +32,35 @@
       {
         "typeId": "type-1",
         "name": "Checking",
-        "description": "Everyday banking account with no interest",
-        "interestRate": 0
+        "description": "Everyday banking account with no interest"
       },
       {
         "typeId": "type-2",
         "name": "Savings",
-        "description": "Interest-bearing account for savings",
-        "interestRate": 0.02
+        "description": "Interest-bearing account for savings"
       },
       {
         "typeId": "type-3",
         "name": "Investment",
-        "description": "High-yield investment account",
-        "interestRate": 0.05
+        "description": "High-yield investment account"
       }
     ],
     "owns": [
       {
         "userId": "user-1",
-        "accountId": "acc-1",
-        "accessLevel": "primary"
+        "accountId": "acc-1"
       },
       {
         "userId": "user-1",
-        "accountId": "acc-2",
-        "accessLevel": "primary"
+        "accountId": "acc-2"
       },
       {
         "userId": "user-2",
-        "accountId": "acc-3",
-        "accessLevel": "primary"
+        "accountId": "acc-3"
       },
       {
         "userId": "user-2",
-        "accountId": "acc-1",
-        "accessLevel": "joint"
+        "accountId": "acc-1"
       }
     ],
     "isType": [

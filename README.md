@@ -817,5 +817,6 @@ RETURN path;
 
 ## Tasks
 
+- Run and test the current refactored version now
 - Bank Name is missing
 - See the paper prototype and revise the mock data with realistic values for attributes

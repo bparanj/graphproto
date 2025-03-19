@@ -38,16 +38,15 @@ const db = {
     return data.accountTypes.find(type => type.typeId === relationship.typeId);
   },
   
-  // Get users of a specific account
-  getAccountUsers: async (accountId) => {
+  // Get customers of a specific account
+  getAccountCustomers: async (accountId) => {
     const data = await loadDb();
     const relationships = data.owns.filter(rel => rel.accountId === accountId);
     
     return relationships.map(rel => {
-      const user = data.users.find(user => user.userId === rel.userId);
+      const user = data.customers.find(user => customer.customerId === rel.userId);
       return {
-        ...user,
-        accessLevel: rel.accessLevel
+        ...user
       };
     });
   },

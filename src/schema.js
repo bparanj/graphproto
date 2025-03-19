@@ -1,7 +1,7 @@
 const { gql } = require('apollo-server');
 
 const typeDefs = gql`
-  type User {
+  type Customer {
     userId: ID!
     name: String!
     email: String!
@@ -12,7 +12,6 @@ const typeDefs = gql`
     balance: Float!
     openDate: String!
     accountType: AccountType
-    users: [UserWithAccess!]
   }
   
   type AccountType {
@@ -21,14 +20,7 @@ const typeDefs = gql`
     description: String!
     interestRate: Float!
   }
-  
-  type UserWithAccess {
-    userId: ID!
-    name: String!
-    email: String!
-    accessLevel: String!
-  }
-  
+    
   type AccountSummary {
     accounts: [Account!]!
     totalBalance: Float!

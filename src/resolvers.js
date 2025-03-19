@@ -14,7 +14,7 @@ const resolvers = {
   
   Account: {
     accountType: (account) => db.getAccountType(account.accountId),
-    users: (account) => db.getAccountUsers(account.accountId)
+    customers: (account) => db.getAccountCustomers(account.accountId)
   }
 };
 
